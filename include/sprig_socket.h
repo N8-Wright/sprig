@@ -10,6 +10,7 @@ typedef struct sprig_socket {
 } sprig_socket;
 
 sprig_socket sprig_socket_bind(const char *url, const char *port);
+sprig_socket sprig_socket_connect(const char *url, const char *port);
 
 void sprig_send(sprig_socket *, sprig_packet *packet);
 sprig_packet *sprig_recv(sprig_socket *);

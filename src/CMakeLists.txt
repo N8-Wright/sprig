@@ -6,3 +6,6 @@ target_compile_options(sprig_core PRIVATE
 
 add_executable(sprig_client sprig_client.c)
 target_link_libraries(sprig_client PRIVATE sprig_core)
+
+add_executable(sprig_server sprig_server.c)
+target_link_libraries(sprig_server PRIVATE sprig_core)
