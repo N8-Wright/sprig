@@ -1,17 +1,16 @@
 ﻿#ifndef SPRIG_SOCKET_H_
 #define SPRIG_SOCKET_H_
 #include "sprig_packet.h"
-typedef struct sprig_socket
-{
-    #ifdef _WIN32
+typedef struct sprig_socket {
+#ifdef _WIN32
     HANDLE handle;
-    #else
+#else
     int handle;
-    #endif
+#endif
 } sprig_socket;
 
-sprig_socket sprig_socket_open(const char* url, short port);
+sprig_socket sprig_socket_bind(const char *url, const char *port);
 
-void sprig_send(sprig_socket*, sprig_packet* packet);
-sprig_packet* sprig_recv(sprig_socket*);
-#endif // SPRIG_SOCKET_H_
+void sprig_send(sprig_socket *, sprig_packet *packet);
+sprig_packet *sprig_recv(sprig_socket *);
+#endif// SPRIG_SOCKET_H_
