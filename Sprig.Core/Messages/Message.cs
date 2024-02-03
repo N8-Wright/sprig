@@ -1,14 +1,9 @@
 ﻿namespace Sprig.Core.Messages;
 
-public struct Message
+public class Message(MessageKind kind)
 {
     /// <summary>
     /// The kind of message being send/received.
     /// </summary>
-    public MessageKind Kind;
-
-    /// <summary>
-    /// The size of the message in bytes (including the size of <see cref="Kind"/> and <see cref="Size"/> )
-    /// </summary>
-    public uint Size;
+    public MessageKind Kind = kind;
 }
