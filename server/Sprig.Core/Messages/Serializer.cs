@@ -10,6 +10,11 @@ public static class Serializer
     public const int HandshakeRequestSize = MessageSize + sizeof(int);
     public const int HandshakeResponseSize = ResponseMessageSize + sizeof(int);
 
+    /// <summary>
+    /// Serialize a generic <see cref="Message"/>.
+    /// </summary>
+    /// <param name="message">The message to serialize.</param>
+    /// <returns>The serialized bytes.</returns>
     public static byte[] Serialize(Message message)
     {
         byte[] serialized = message.Kind switch
@@ -21,6 +26,12 @@ public static class Serializer
         return serialized;
     }
 
+    /// <summary>
+    /// Generic method to deserialize a message buffer.
+    /// </summary>
+    /// <param name="message">The bytes to deserialize.</param>
+    /// <returns>An instance of a <see cref="Message"/>.</returns>
+    /// <exception cref="InvalidOperationException">When unable to deserialize the message.</exception>
     public static Message Deserialize(byte[] message)
     {
         var baseMessage = DeserializeBaseMessage(message);
@@ -33,6 +44,12 @@ public static class Serializer
         };
     }
 
+    /// <summary>
+    /// Serializes a <see cref="HandshakeRequest" /> message.
+    /// </summary>
+    /// <param name="message">The message to serialize.</param>
+    /// <returns>The serialized bytes.</returns>
+    /// <exception cref="InvalidOperationException">On failure to write.</exception>
     public static byte[] Serialize(HandshakeRequest message)
     {
         var bytes = new byte[HandshakeRequestSize];
@@ -45,12 +62,23 @@ public static class Serializer
         return bytes;
     }
 
+    /// <summary>
+    /// Deserialize a <see cref="HandshakeRequest"/> message.
+    /// </summary>
+    /// <param name="message">The bytes to deserialize.</param>
+    /// <returns>An instance of <see cref="HandshakeRequest"/>.</returns>
     public static HandshakeRequest DeserializeHandshakeRequest(ReadOnlySpan<byte> message)
     {
         var desiredProtocolVersion = BitConverter.ToInt32(message);
         return new HandshakeRequest(IPAddress.NetworkToHostOrder(desiredProtocolVersion));
     }
 
+    /// <summary>
+    /// Serializes a <see cref="HandshakeResponse"/> message.
+    /// </summary>
+    /// <param name="message">The message to serialize.</param>
+    /// <returns>Serialized bytes of the message.</returns>
+    /// <exception cref="InvalidOperationException">On failure to write bytes.</exception>
     public static byte[] Serialize(HandshakeResponse message)
     {
         var bytes = new byte[HandshakeResponseSize];
@@ -63,6 +91,11 @@ public static class Serializer
         return bytes;
     }
 
+    /// <summary>
+    /// Deserialize a <see cref="HandshakeResponse"/> message.
+    /// </summary>
+    /// <param name="message">The bytes to deserialize.</param>
+    /// <returns>An instance of <see cref="HandshakeResponse"/>.</returns>
     public static HandshakeResponse DeserializeHandshakeResponse(ReadOnlySpan<byte> message)
     {
         var response = DeserializeResponseMessage(message, MessageKind.HandshakeResponse);
@@ -89,6 +122,12 @@ public static class Serializer
         return ResponseMessageSize;
     }
 
+    /// <summary>
+    /// Deserialize a <see cref="Response"/> message.
+    /// </summary>
+    /// <param name="message">The bytes to deserialize.</param>
+    /// <param name="kind">The kind of response to create.</param>
+    /// <returns>An instance of <see cref="Response"/>.</returns>
     private static Response DeserializeResponseMessage(ReadOnlySpan<byte> message, MessageKind kind)
     {
         var responseCode = BitConverter.ToInt32(message);
