@@ -7,8 +7,8 @@ public static class Serializer
 {
     public const int MessageSize = sizeof(int);
     public const int ResponseMessageSize = MessageSize + sizeof(int);
-    public const int HandshakeRequestSize = MessageSize + sizeof(uint);
-    public const int HandshakeResponseSize = ResponseMessageSize + sizeof(uint);
+    public const int HandshakeRequestSize = MessageSize + sizeof(int);
+    public const int HandshakeResponseSize = ResponseMessageSize + sizeof(int);
 
     public static byte[] Serialize(Message message)
     {
@@ -26,7 +26,10 @@ public static class Serializer
         var bytes = new byte[HandshakeRequestSize];
         var offset = SerializeBaseMessage(message, bytes);
         var desiredProtocolVersion = IPAddress.HostToNetworkOrder(message.DesiredProtocolVersion);
-        BitConverter.TryWriteBytes(bytes.AsSpan()[offset..], desiredProtocolVersion);
+        if (!BitConverter.TryWriteBytes(bytes.AsSpan(offset), desiredProtocolVersion))
+        {
+            throw new InvalidOperationException("Unable to write desired protocol version.");
+        }
         return bytes;
     }
 
@@ -35,15 +38,28 @@ public static class Serializer
         var bytes = new byte[HandshakeResponseSize];
         var offset = SerializeResponseMessage(message, bytes);
         var protocolVersion = IPAddress.HostToNetworkOrder(message.ProtocolVersion);
-        BitConverter.TryWriteBytes(bytes.AsSpan()[offset..], protocolVersion);
+        if (!BitConverter.TryWriteBytes(bytes.AsSpan()[offset..], protocolVersion))
+        {
+            throw new InvalidOperationException("Unable to write protocol version");
+        }
         return bytes;
     }
 
+    /// <summary>
+    /// Serializes the properties of a <see cref="Response"/> message.
+    /// </summary>
+    /// <param name="message">The message to serialize.</param>
+    /// <param name="buffer">The buffer to write into.</param>
+    /// <returns>The number of bytes that were written.</returns>
+    /// <exception cref="InvalidOperationException">On failure to write bytes.</exception>
     private static int SerializeResponseMessage(Response message, Span<byte> buffer)
     {
         var offset = SerializeBaseMessage(message, buffer);
         var responseCode = IPAddress.HostToNetworkOrder((int)message.Code);
-        BitConverter.TryWriteBytes(buffer[offset..], responseCode);
+        if (!BitConverter.TryWriteBytes(buffer[offset..], responseCode))
+        {
+            throw new InvalidOperationException("Unable to write response code.");
+        }
         return ResponseMessageSize;
     }
 
@@ -53,10 +69,14 @@ public static class Serializer
     /// <param name="message">The message to serialize.</param>
     /// <param name="buffer">The buffer to write into.</param>
     /// <returns>The number of bytes that were written.</returns>
+    /// <exception cref="InvalidOperationException">On failure to write bytes.</exception>
     private static int SerializeBaseMessage(Message message, Span<byte> buffer)
     {
-        int toWrite = IPAddress.HostToNetworkOrder((int)message.Kind);
-        BitConverter.TryWriteBytes(buffer, toWrite);
+        int kind = IPAddress.HostToNetworkOrder((int)message.Kind);
+        if (!BitConverter.TryWriteBytes(buffer, kind))
+        {
+            throw new InvalidOperationException("Unable to write kind.");
+        }
         return MessageSize;
     }
 }
