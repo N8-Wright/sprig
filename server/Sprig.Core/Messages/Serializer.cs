@@ -5,6 +5,7 @@ namespace Sprig.Core.Messages;
 
 public static class Serializer
 {
+    public const int MessageMaxSize = 256;
     public const int MessageSize = sizeof(int);
     public const int ResponseMessageSize = MessageSize + sizeof(int);
     public const int HandshakeRequestSize = MessageSize + sizeof(int);
@@ -32,10 +33,10 @@ public static class Serializer
     /// <param name="message">The bytes to deserialize.</param>
     /// <returns>An instance of a <see cref="Message"/>.</returns>
     /// <exception cref="InvalidOperationException">When unable to deserialize the message.</exception>
-    public static Message Deserialize(byte[] message)
+    public static Message Deserialize(ReadOnlySpan<byte> message)
     {
         var baseMessage = DeserializeBaseMessage(message);
-        var restOfMessage = message.AsSpan()[MessageSize..];
+        var restOfMessage = message[MessageSize..];
         return baseMessage.Kind switch
         {
             MessageKind.HandshakeRequest => DeserializeHandshakeRequest(restOfMessage),
