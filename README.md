@@ -2,7 +2,14 @@
 
 ## Server
 
-<!-- @Nathan: Include build steps on how to compile the server? -->
+** Requirements:
+- dotnet8.0
+
+** Building
+- `dotnet build`
+
+** Testing
+- `dotnet test`
 
 ## Client
 
