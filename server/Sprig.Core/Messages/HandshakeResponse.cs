@@ -1,8 +1,10 @@
-﻿namespace Sprig.Core.Messages;
+﻿using System.Diagnostics.CodeAnalysis;
 
-public class HandshakeResponse : Response
+namespace Sprig.Core.Messages;
+
+public class HandshakeResponse(ResponseCode code, int version) : Response(code, MessageKind.HandshakeResponse), IEqualityComparer<HandshakeResponse>
 {
-    public int ProtocolVersion;
+    public int ProtocolVersion = version;
 
     /// <summary>
     /// Creates a successful handshake response.
@@ -25,9 +27,39 @@ public class HandshakeResponse : Response
         return new HandshakeResponse(ResponseCode.Invalid, minimumSupportedProtocol);
     }
 
-    private HandshakeResponse(ResponseCode code, int version)
-        : base(code, MessageKind.HandshakeResponse)
+    public override bool Equals(object? obj)
     {
-        ProtocolVersion = version;
+        if (obj is null)
+        {
+            return false;
+        }
+
+        return Equals(this, obj as HandshakeResponse);
+    }
+
+    public bool Equals(HandshakeResponse? x, HandshakeResponse? y)
+    {
+        if (x is null && y is null)
+        {
+            return true;
+        }
+        else if (x is not null && y is not null)
+        {
+            return x.Kind == y.Kind && x.Code == y.Code && x.ProtocolVersion == y.ProtocolVersion;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public override int GetHashCode()
+    {
+        return GetHashCode(this);
+    }
+
+    public int GetHashCode([DisallowNull] HandshakeResponse obj)
+    {
+        return HashCode.Combine(obj.Kind, obj.Code, obj.ProtocolVersion);
     }
 }

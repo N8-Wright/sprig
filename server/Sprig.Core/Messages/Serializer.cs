@@ -21,6 +21,18 @@ public static class Serializer
         return serialized;
     }
 
+    public static Message Deserialize(byte[] message)
+    {
+        var baseMessage = DeserializeBaseMessage(message);
+        var restOfMessage = message.AsSpan()[MessageSize..];
+        return baseMessage.Kind switch
+        {
+            MessageKind.HandshakeRequest => DeserializeHandshakeRequest(restOfMessage),
+            MessageKind.HandshakeResponse => DeserializeHandshakeResponse(restOfMessage),
+            _ => throw new InvalidOperationException("Unable to determine message kind."),
+        };
+    }
+
     public static byte[] Serialize(HandshakeRequest message)
     {
         var bytes = new byte[HandshakeRequestSize];
@@ -33,6 +45,12 @@ public static class Serializer
         return bytes;
     }
 
+    public static HandshakeRequest DeserializeHandshakeRequest(ReadOnlySpan<byte> message)
+    {
+        var desiredProtocolVersion = BitConverter.ToInt32(message);
+        return new HandshakeRequest(IPAddress.NetworkToHostOrder(desiredProtocolVersion));
+    }
+
     public static byte[] Serialize(HandshakeResponse message)
     {
         var bytes = new byte[HandshakeResponseSize];
@@ -43,6 +61,14 @@ public static class Serializer
             throw new InvalidOperationException("Unable to write protocol version");
         }
         return bytes;
+    }
+
+    public static HandshakeResponse DeserializeHandshakeResponse(ReadOnlySpan<byte> message)
+    {
+        var response = DeserializeResponseMessage(message, MessageKind.HandshakeResponse);
+        var offset = ResponseMessageSize - MessageSize;
+        var protocolVersion = BitConverter.ToInt32(message[offset..]);
+        return new HandshakeResponse(response.Code, IPAddress.NetworkToHostOrder(protocolVersion));
     }
 
     /// <summary>
@@ -63,6 +89,13 @@ public static class Serializer
         return ResponseMessageSize;
     }
 
+    private static Response DeserializeResponseMessage(ReadOnlySpan<byte> message, MessageKind kind)
+    {
+        var responseCode = BitConverter.ToInt32(message);
+        var responseCodeEnum = (ResponseCode)IPAddress.NetworkToHostOrder(responseCode);
+        return new Response(responseCodeEnum, kind);
+    }
+
     /// <summary>
     /// Serializes the base properties of a message
     /// </summary>
@@ -78,5 +111,17 @@ public static class Serializer
             throw new InvalidOperationException("Unable to write kind.");
         }
         return MessageSize;
+    }
+
+    /// <summary>
+    /// Deserializes a message buffer into the base <see cref="Message"/>.
+    /// </summary>
+    /// <param name="message">The buffer to deserialize.</param>
+    /// <returns>A <see cref="Message"/> instance.</returns>
+    private static Message DeserializeBaseMessage(ReadOnlySpan<byte> message)
+    {
+        var kind = BitConverter.ToInt32(message);
+        var kindEnum = (MessageKind)IPAddress.NetworkToHostOrder(kind);
+        return new Message(kindEnum);
     }
 }
