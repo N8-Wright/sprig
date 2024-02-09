@@ -5,10 +5,16 @@ namespace Sprig.Core.Messages;
 
 public static class Serializer
 {
+    public const int MessageMaxSize = 256;
     public const int MessageSize = sizeof(int);
     public const int ResponseMessageSize = MessageSize + sizeof(int);
     public const int HandshakeRequestSize = MessageSize + sizeof(int);
     public const int HandshakeResponseSize = ResponseMessageSize + sizeof(int);
+    public static readonly Dictionary<MessageKind, int> MessageKindSize = new Dictionary<MessageKind, int>
+    {
+        { MessageKind.HandshakeRequest, HandshakeRequestSize },
+        { MessageKind.HandshakeResponse, HandshakeResponseSize },
+    };
 
     /// <summary>
     /// Serialize a generic <see cref="Message"/>.
@@ -32,10 +38,10 @@ public static class Serializer
     /// <param name="message">The bytes to deserialize.</param>
     /// <returns>An instance of a <see cref="Message"/>.</returns>
     /// <exception cref="InvalidOperationException">When unable to deserialize the message.</exception>
-    public static Message Deserialize(byte[] message)
+    public static Message Deserialize(ReadOnlySpan<byte> message)
     {
         var baseMessage = DeserializeBaseMessage(message);
-        var restOfMessage = message.AsSpan()[MessageSize..];
+        var restOfMessage = message[MessageSize..];
         return baseMessage.Kind switch
         {
             MessageKind.HandshakeRequest => DeserializeHandshakeRequest(restOfMessage),
@@ -60,6 +66,18 @@ public static class Serializer
             throw new InvalidOperationException("Unable to write desired protocol version.");
         }
         return bytes;
+    }
+
+    /// <summary>
+    /// Deserializes a message buffer into the base <see cref="Message"/>.
+    /// </summary>
+    /// <param name="message">The buffer to deserialize.</param>
+    /// <returns>A <see cref="Message"/> instance.</returns>
+    public static Message DeserializeBaseMessage(ReadOnlySpan<byte> message)
+    {
+        var kind = BitConverter.ToInt32(message);
+        var kindEnum = (MessageKind)IPAddress.NetworkToHostOrder(kind);
+        return new Message(kindEnum);
     }
 
     /// <summary>
@@ -150,17 +168,5 @@ public static class Serializer
             throw new InvalidOperationException("Unable to write kind.");
         }
         return MessageSize;
-    }
-
-    /// <summary>
-    /// Deserializes a message buffer into the base <see cref="Message"/>.
-    /// </summary>
-    /// <param name="message">The buffer to deserialize.</param>
-    /// <returns>A <see cref="Message"/> instance.</returns>
-    private static Message DeserializeBaseMessage(ReadOnlySpan<byte> message)
-    {
-        var kind = BitConverter.ToInt32(message);
-        var kindEnum = (MessageKind)IPAddress.NetworkToHostOrder(kind);
-        return new Message(kindEnum);
     }
 }
