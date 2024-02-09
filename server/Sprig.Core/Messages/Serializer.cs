@@ -10,6 +10,11 @@ public static class Serializer
     public const int ResponseMessageSize = MessageSize + sizeof(int);
     public const int HandshakeRequestSize = MessageSize + sizeof(int);
     public const int HandshakeResponseSize = ResponseMessageSize + sizeof(int);
+    public static readonly Dictionary<MessageKind, int> MessageKindSize = new Dictionary<MessageKind, int>
+    {
+        { MessageKind.HandshakeRequest, HandshakeRequestSize },
+        { MessageKind.HandshakeResponse, HandshakeResponseSize },
+    };
 
     /// <summary>
     /// Serialize a generic <see cref="Message"/>.
@@ -61,6 +66,18 @@ public static class Serializer
             throw new InvalidOperationException("Unable to write desired protocol version.");
         }
         return bytes;
+    }
+
+    /// <summary>
+    /// Deserializes a message buffer into the base <see cref="Message"/>.
+    /// </summary>
+    /// <param name="message">The buffer to deserialize.</param>
+    /// <returns>A <see cref="Message"/> instance.</returns>
+    public static Message DeserializeBaseMessage(ReadOnlySpan<byte> message)
+    {
+        var kind = BitConverter.ToInt32(message);
+        var kindEnum = (MessageKind)IPAddress.NetworkToHostOrder(kind);
+        return new Message(kindEnum);
     }
 
     /// <summary>
@@ -151,17 +168,5 @@ public static class Serializer
             throw new InvalidOperationException("Unable to write kind.");
         }
         return MessageSize;
-    }
-
-    /// <summary>
-    /// Deserializes a message buffer into the base <see cref="Message"/>.
-    /// </summary>
-    /// <param name="message">The buffer to deserialize.</param>
-    /// <returns>A <see cref="Message"/> instance.</returns>
-    private static Message DeserializeBaseMessage(ReadOnlySpan<byte> message)
-    {
-        var kind = BitConverter.ToInt32(message);
-        var kindEnum = (MessageKind)IPAddress.NetworkToHostOrder(kind);
-        return new Message(kindEnum);
     }
 }

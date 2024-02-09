@@ -25,6 +25,7 @@ class Server
                 var clientSocket = await _listener.AcceptSocketAsync(cancellationToken);
                 if (await HandleHandshake(buffer, clientSocket, cancellationToken))
                 {
+                    Console.WriteLine("Received successful handshake request");
                     await ProcessClient(clientSocket, cancellationToken);
                 }
             }
