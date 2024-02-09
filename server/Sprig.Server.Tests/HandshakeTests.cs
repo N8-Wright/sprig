@@ -18,4 +18,14 @@ public class HandshakeTests : IntegrationBase
         Assert.Equal(MessageKind.HandshakeResponse, response.Kind);
         Assert.Equal(ResponseCode.Ok, ((HandshakeResponse)response).Code);
     }
+
+    [Fact]
+    public async Task SendHandshakeRequest_InvalidProtocolVersion_RespondsWithRejection()
+    {
+        await Client.SendAsync(new HandshakeRequest(-1), Cancellation);
+        var response = await Client.ReceiveAsync(Cancellation);
+
+        Assert.Equal(MessageKind.HandshakeResponse, response.Kind);
+        Assert.Equal(ResponseCode.Invalid, ((HandshakeResponse)response).Code);
+    }
 }
