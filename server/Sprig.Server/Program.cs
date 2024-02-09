@@ -7,5 +7,5 @@ Console.CancelKeyPress += (sender, eventArgs) =>
     eventArgs.Cancel = true;
 };
 
-var server = new Server();
+var server = new Server(port: 8080);
 await server.RunAsync(cancellationTokenSource.Token);

@@ -5,13 +5,13 @@ using Sprig.Core.Messages;
 
 namespace Sprig.Server;
 
-class Server
+public class Server
 {
     private readonly TcpListener _listener;
 
-    public Server()
+    public Server(int port)
     {
-        _listener = new TcpListener(IPAddress.Any, 8080);
+        _listener = new TcpListener(IPAddress.Any, port);
     }
 
     public async Task RunAsync(CancellationToken cancellationToken)

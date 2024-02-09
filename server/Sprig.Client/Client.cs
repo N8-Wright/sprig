@@ -5,7 +5,7 @@ using Sprig.Core.Messages;
 
 namespace Sprig.Client;
 
-class Client
+public class Client
 {
     private readonly TcpClient _client;
     public Client(string url, int port)
