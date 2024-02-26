@@ -4,5 +4,8 @@
     "watch": "npm run clean && npm i && tsc --watch",
     "clean": "rm -rf node_modules package-lock.json dist",
     "http": "npx -y http-server@latest"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
   }
 }
