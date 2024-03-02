@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprig.Server", "Sprig.Serve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprig.Models", "Sprig.Models\Sprig.Models.csproj", "{D8DDA8DA-D91A-45F6-982E-88CF81F7C81F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprig.Client", "Sprig.Client\Sprig.Client.csproj", "{FE9EC409-9395-4FE1-BB07-625379FF99B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{D8DDA8DA-D91A-45F6-982E-88CF81F7C81F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8DDA8DA-D91A-45F6-982E-88CF81F7C81F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8DDA8DA-D91A-45F6-982E-88CF81F7C81F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE9EC409-9395-4FE1-BB07-625379FF99B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE9EC409-9395-4FE1-BB07-625379FF99B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE9EC409-9395-4FE1-BB07-625379FF99B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE9EC409-9395-4FE1-BB07-625379FF99B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -3,9 +3,8 @@
 using MessagePack;
 
 [MessagePackObject]
-public class BeginSessionRequest : Message
+public class BeginSessionRequest : IMessage
 {
-    public BeginSessionRequest() : base(Kind.BeginSessionRequestMessage)
-    {
-    }
+    [Key(0)]
+    public int ProtocolVersion => 1;
 }

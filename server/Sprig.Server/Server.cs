@@ -29,8 +29,8 @@ class Server
                 var messageBytes = await reader.ReadAsync(cancellationToken);
                 if (messageBytes.HasValue)
                 {
-                    var message = MessagePackSerializer.Deserialize<Message>(messageBytes.Value, cancellationToken: cancellationToken);
-                    Console.WriteLine($"Received message, {message}");
+                    var message = MessagePackSerializer.Deserialize<IMessage>(messageBytes.Value, cancellationToken: cancellationToken);
+                    Console.WriteLine($"Received message, {MessagePackSerializer.ConvertToJson(messageBytes.Value, cancellationToken: cancellationToken)}");
                 }
             }
         }

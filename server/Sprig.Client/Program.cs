@@ -1,5 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
-using Sprig;
+﻿using Sprig;
+using Sprig.Models;
 
 var cts = new CancellationTokenSource();
 Console.CancelKeyPress += (s, e) =>
@@ -9,5 +9,5 @@ Console.CancelKeyPress += (s, e) =>
     e.Cancel = true;
 };
 
-var server = new Server();
-await server.Run(cts.Token);
+var client = new Client("localhost", 8989);
+await client.Send(new BeginSessionRequest(), cts.Token);
