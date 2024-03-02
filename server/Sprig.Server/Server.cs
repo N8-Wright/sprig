@@ -1,67 +1,41 @@
-﻿using System.Net;
+﻿namespace Sprig;
+
+using System.Net;
 using System.Net.Sockets;
-using Sprig.Core;
-using Sprig.Core.Messages;
+using MessagePack;
+using Sprig.Models;
 
-namespace Sprig.Server;
-
-public class Server
+class Server
 {
-    private readonly TcpListener _listener;
+    private readonly TcpListener m_tcpListener;
 
-    public Server(int port)
+    public Server(IPAddress? address = null, int port = 8989)
     {
-        _listener = new TcpListener(IPAddress.Any, port);
+        address ??= IPAddress.Any;
+        m_tcpListener = new TcpListener(address, port);
     }
 
-    public async Task RunAsync(CancellationToken cancellationToken)
+    public async Task Run(CancellationToken cancellationToken)
     {
-        _listener.Start();
+        m_tcpListener.Start();
+
         try
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                var client = await _listener.AcceptTcpClientAsync(cancellationToken);
-                if (await HandleHandshake(client, cancellationToken))
+                using TcpClient handler = await m_tcpListener.AcceptTcpClientAsync(cancellationToken);
+                await using NetworkStream stream = handler.GetStream();
+                using var reader = new MessagePackStreamReader(stream);
+                var messageBytes = await reader.ReadAsync(cancellationToken);
+                if (messageBytes.HasValue)
                 {
-                    Console.WriteLine("Received successful handshake request");
-                    await ProcessClient(client, cancellationToken);
+                    var message = MessagePackSerializer.Deserialize<Message>(messageBytes.Value, cancellationToken: cancellationToken);
+                    Console.WriteLine($"Received message, {message}");
                 }
             }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            _listener.Stop();
         }
-    }
-
-    private Task ProcessClient(TcpClient client, CancellationToken cancellationToken)
-    {
-        var networkStream = client.GetStream();
-        return Task.CompletedTask;
-    }
-
-    private static async Task<bool> HandleHandshake(TcpClient client, CancellationToken cancellationToken)
-    {
-        var networkStream = client.GetStream();
-        var handshakeRequest = (HandshakeRequest?)await MessageStream.ReadAsync(networkStream, MessageKind.HandshakeRequest, cancellationToken);
-        if (handshakeRequest is null)
-        {
-            return false;
-        }
-
-        HandshakeResponse response;
-        if (handshakeRequest.DesiredProtocolVersion == 1)
-        {
-            response = HandshakeResponse.Accept(1);
-        }
-        else
-        {
-            response = HandshakeResponse.Reject(1);
-        }
-
-        var responseBytes = Serializer.Serialize(response);
-        await networkStream.WriteAsync(responseBytes, cancellationToken);
-        return true;
     }
 }

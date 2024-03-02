@@ -1,11 +1,15 @@
-﻿using Sprig.Server;
+﻿// See https://aka.ms/new-console-template for more information
+using Sprig;
 
-using var cancellationTokenSource = new CancellationTokenSource();
-Console.CancelKeyPress += (sender, eventArgs) =>
+// Add this to your C# console app's Main method to give yourself
+// a CancellationToken that is canceled when the user hits Ctrl+C.
+var cts = new CancellationTokenSource();
+Console.CancelKeyPress += (s, e) =>
 {
-    cancellationTokenSource.Cancel();
-    eventArgs.Cancel = true;
+    Console.WriteLine("Canceling...");
+    cts.Cancel();
+    e.Cancel = true;
 };
 
-var server = new Server(port: 8080);
-await server.RunAsync(cancellationTokenSource.Token);
+var server = new Server();
+await server.Run(cts.Token);
