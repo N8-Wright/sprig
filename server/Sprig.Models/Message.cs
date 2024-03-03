@@ -9,6 +9,6 @@ public abstract class Message
 {
     public const int CurrentProtocolVersion = 1;
 
-    [Key(0)]
+    [Key("ProtocolVersion")]
     public int ProtocolVersion { get; set; } = CurrentProtocolVersion;
 }
