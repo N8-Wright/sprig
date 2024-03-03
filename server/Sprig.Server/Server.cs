@@ -24,13 +24,31 @@ class Server
             while (!cancellationToken.IsCancellationRequested)
             {
                 using TcpClient handler = await m_tcpListener.AcceptTcpClientAsync(cancellationToken);
-                await using NetworkStream stream = handler.GetStream();
-                using var reader = new MessagePackStreamReader(stream);
+                var stream = handler.GetStream();
+                var reader = new MessagePackStreamReader(stream);
                 var messageBytes = await reader.ReadAsync(cancellationToken);
                 if (messageBytes.HasValue)
                 {
-                    var message = MessagePackSerializer.Deserialize<IMessage>(messageBytes.Value, cancellationToken: cancellationToken);
-                    Console.WriteLine($"Received message, {MessagePackSerializer.ConvertToJson(messageBytes.Value, cancellationToken: cancellationToken)}");
+                    var message = MessagePackSerializer.Deserialize<Message>(messageBytes.Value, cancellationToken: cancellationToken);
+                    Console.WriteLine($"Received message on thread ${Environment.CurrentManagedThreadId}, {MessagePackSerializer.ConvertToJson(messageBytes.Value, cancellationToken: cancellationToken)}");
+                    switch (message)
+                    {
+                        case BeginSessionRequest beginSessionRequest:
+                            {
+                                Message response;
+                                if (beginSessionRequest.ProtocolVersion == Message.CurrentProtocolVersion)
+                                {
+                                    response = new Response(Response.Code.Ok);
+                                }
+                                else
+                                {
+                                    response = new Response(Response.Code.InvalidRequest);
+                                }
+
+                                await stream.WriteAsync(MessagePackSerializer.Serialize(response, cancellationToken: cancellationToken), cancellationToken);
+                            }
+                            break;
+                    }
                 }
             }
         }

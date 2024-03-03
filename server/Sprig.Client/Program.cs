@@ -9,5 +9,15 @@ Console.CancelKeyPress += (s, e) =>
     e.Cancel = true;
 };
 
-var client = new Client("localhost", 8989);
+using var client = new Client("localhost", 8989);
 await client.Send(new BeginSessionRequest(), cts.Token);
+var message = await client.Receive(cts.Token);
+switch (message)
+{
+    case Response response:
+        Console.WriteLine($"Received response of {response.ResponseCode}");
+        break;
+    default:
+        Console.WriteLine("Received unknown message");
+        break;
+}

@@ -3,8 +3,6 @@
 using MessagePack;
 
 [MessagePackObject]
-public class BeginSessionRequest : IMessage
+public class BeginSessionRequest : Message
 {
-    [Key(0)]
-    public int ProtocolVersion => 1;
 }
