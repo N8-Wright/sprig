@@ -1,28 +1,43 @@
-﻿using System.Net;
+﻿namespace Sprig;
 using System.Net.Sockets;
-using Sprig.Core;
-using Sprig.Core.Messages;
+using MessagePack;
+using Sprig.Models;
 
-namespace Sprig.Client;
-
-public class Client
+public class Client : IDisposable
 {
-    private readonly TcpClient _client;
-    public Client(string url, int port)
+    private readonly TcpClient m_tcpClient;
+
+    public Client(string hostname, int port)
     {
-        _client = new TcpClient(url, port);
+        m_tcpClient = new TcpClient(hostname, port);
+        var stream = m_tcpClient.GetStream();
     }
 
-    public async Task SendAsync(Message message, CancellationToken cancellationToken)
+    public void Dispose()
     {
-        var buffer = Serializer.Serialize(message);
-        var networkStream = _client.GetStream();
-        await networkStream.WriteAsync(buffer, cancellationToken);
+        m_tcpClient.Dispose();
     }
 
-    public async Task<Message> ReceiveAsync(CancellationToken cancellationToken)
+    public async Task Send(Message message, CancellationToken cancellationToken)
     {
-        var networkStream = _client.GetStream();
-        return await MessageStream.ReadAsync(networkStream, cancellationToken);
+        var bytes = MessagePackSerializer.Serialize(message, cancellationToken: cancellationToken);
+        var stream = m_tcpClient.GetStream();
+        await stream.WriteAsync(bytes, cancellationToken);
+    }
+
+    public async Task<Message> Receive(CancellationToken cancellationToken)
+    {
+        var stream = m_tcpClient.GetStream();
+        var reader = new MessagePackStreamReader(stream);
+        var messageBytes = await reader.ReadAsync(cancellationToken);
+        if (messageBytes.HasValue)
+        {
+            Console.WriteLine($"Received message on thread ${Environment.CurrentManagedThreadId}, {MessagePackSerializer.ConvertToJson(messageBytes.Value, cancellationToken: cancellationToken)}");
+            return MessagePackSerializer.Deserialize<Message>(messageBytes.Value, cancellationToken: cancellationToken);
+        }
+        else
+        {
+            throw new InvalidOperationException("Unable to read message from socket");
+        }
     }
 }

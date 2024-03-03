@@ -1,23 +1,23 @@
-﻿using Sprig.Client;
-using Sprig.Core.Messages;
+﻿using Sprig;
+using Sprig.Models;
 
-var client = new Client("localhost", 8080);
-
-Console.WriteLine("Sending handshake request");
-await client.SendAsync(new HandshakeRequest(1), CancellationToken.None);
-
-var message = await client.ReceiveAsync(CancellationToken.None);
-if (message.Kind != MessageKind.HandshakeResponse)
+var cts = new CancellationTokenSource();
+Console.CancelKeyPress += (s, e) =>
 {
-    throw new InvalidOperationException();
-}
+    Console.WriteLine("Canceling...");
+    cts.Cancel();
+    e.Cancel = true;
+};
 
-var handshakeResponse = (HandshakeResponse)message;
-if (handshakeResponse.Code == ResponseCode.Ok)
+using var client = new Client("localhost", 8989);
+await client.Send(new BeginSessionRequest(), cts.Token);
+var message = await client.Receive(cts.Token);
+switch (message)
 {
-    Console.WriteLine("Received successful handshake response");
-}
-else
-{
-    Console.WriteLine("Received failed handshake response");
+    case Response response:
+        Console.WriteLine($"Received response of {response.ResponseCode}");
+        break;
+    default:
+        Console.WriteLine("Received unknown message");
+        break;
 }
