@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using MessagePack;
 using Sprig.Models;
 
-class Client : IDisposable
+public class Client : IDisposable
 {
     private readonly TcpClient m_tcpClient;
 

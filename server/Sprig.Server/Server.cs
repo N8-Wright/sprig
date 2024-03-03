@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using MessagePack;
 using Sprig.Models;
 
-class Server
+public class Server : IDisposable
 {
     private readonly TcpListener m_tcpListener;
 
@@ -13,6 +13,11 @@ class Server
     {
         address ??= IPAddress.Any;
         m_tcpListener = new TcpListener(address, port);
+    }
+
+    public void Dispose()
+    {
+        m_tcpListener.Dispose();
     }
 
     public async Task Run(CancellationToken cancellationToken)
