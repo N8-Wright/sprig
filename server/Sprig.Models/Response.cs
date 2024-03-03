@@ -23,6 +23,6 @@ public class Response : Message
         InvalidRequest,
     }
 
-    [Key(1)]
+    [Key("ResponseCode")]
     public Code ResponseCode { get; set; }
 }
