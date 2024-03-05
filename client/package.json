@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test": "tsc --noEmit",
     "build": "npm run clean && npm i && tsc",
     "watch": "npm run clean && npm i && tsc --watch",
     "clean": "rm -rf node_modules package-lock.json dist",
@@ -7,5 +8,8 @@
   },
   "devDependencies": {
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@msgpack/msgpack": "^3.0.0-beta2"
   }
 }
