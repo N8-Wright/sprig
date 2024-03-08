@@ -1,15 +1,16 @@
 {
   "scripts": {
     "test": "tsc --noEmit",
-    "build": "npm run clean && npm i && tsc",
-    "watch": "npm run clean && npm i && tsc --watch",
+    "build": "npm run clean && npm i && npx webpack",
+    "watch": "npm run clean && npm i && npx webpack --watch",
     "clean": "rm -rf node_modules package-lock.json dist",
     "http": "npx -y http-server@latest"
   },
-  "devDependencies": {
-    "typescript": "^5.3.3"
-  },
   "dependencies": {
     "@msgpack/msgpack": "^3.0.0-beta2"
+  },
+  "devDependencies": {
+    "ts-loader": "9.5.1",
+    "webpack-cli": "5.1.4"
   }
 }
