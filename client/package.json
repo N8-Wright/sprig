@@ -1,8 +1,8 @@
 {
   "scripts": {
     "test": "tsc --noEmit",
-    "build": "npm run clean && npm i && npx webpack",
-    "watch": "npm run clean && npm i && npx webpack --watch",
+    "build": "npm run clean && npm i && webpack",
+    "watch": "npm run clean && npm i && webpack --watch",
     "clean": "rm -rf node_modules package-lock.json dist",
     "http": "npx -y http-server@latest"
   },
