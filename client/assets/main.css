@@ -1,0 +1,15 @@
+* {
+    border-collapse: collapse;
+    outline: none;
+}
+
+canvas {
+    border: 1px solid red;
+    cursor: none;
+    display: block;
+    margin: auto;
+}
+
+canvas:focus {
+    border-color: black;
+}
