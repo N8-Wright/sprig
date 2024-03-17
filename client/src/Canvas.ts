@@ -11,6 +11,8 @@ export class Canvas {
         this.canvas.tabIndex = 0;
         this.canvas.addEventListener('keydown', e => this.onInputDown && this.onInputDown(e.key.toLowerCase()));
         this.canvas.addEventListener('keyup', e => this.onInputUp && this.onInputUp(e.key.toLowerCase()));
+        this.canvas.addEventListener('contextmenu', e => e.preventDefault());
         parent.appendChild(this.canvas);
+        this.canvas.focus();
     }
 }
