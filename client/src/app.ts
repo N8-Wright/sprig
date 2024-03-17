@@ -1,7 +1,5 @@
 import { Canvas } from './Canvas';
 
-console.log('Loaded!');
-
 const C = new Canvas(document.body, 600, 400);
 
 let x: number = 0,
