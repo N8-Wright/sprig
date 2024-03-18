@@ -2,8 +2,8 @@
 // Created by Nathaniel Wright on 3/18/24.
 //
 
-#include "WsListener.h"
-#include "Session.h"
+#include "WSListener.h"
+#include "WSSession.h"
 #include <boost/asio/coroutine.hpp>
 #include <boost/asio/dispatch.hpp>
 #include <boost/asio/strand.hpp>
@@ -15,8 +15,10 @@
 using namespace boost::asio;
 using namespace boost::beast;
 
-WSListener::WSListener(boost::asio::io_context& ioContext, boost::asio::ip::tcp::endpoint endpoint)
-	: m_ioContext(ioContext), m_acceptor(make_strand(ioContext)), m_socket(make_strand(ioContext))
+WSListener::WSListener(boost::asio::io_context& ioContext,
+					   boost::asio::ip::tcp::endpoint endpoint)
+	: m_ioContext(ioContext), m_acceptor(make_strand(ioContext)),
+	  m_socket(make_strand(ioContext))
 {
 	boost::beast::error_code ec;
 
@@ -65,10 +67,9 @@ void WSListener::Loop(boost::beast::error_code ec)
 	{
 		for (;;)
 		{
-			yield m_acceptor.async_accept(m_socket,
-										  std::bind(&WSListener::Loop,
-													shared_from_this(),
-													std::placeholders::_1));
+			yield m_acceptor.async_accept(m_socket, std::bind(&WSListener::Loop,
+															  shared_from_this(),
+															  std::placeholders::_1));
 			if (ec)
 			{
 				BOOST_LOG_TRIVIAL(error) << ec.message();
@@ -80,7 +81,8 @@ void WSListener::Loop(boost::beast::error_code ec)
 			}
 
 			// Make sure each session gets its own strand
-			m_socket = boost::asio::ip::tcp::socket(boost::asio::make_strand(m_ioContext));
+			m_socket =
+					boost::asio::ip::tcp::socket(boost::asio::make_strand(m_ioContext));
 		}
 	}
 }

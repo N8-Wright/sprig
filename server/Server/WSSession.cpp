@@ -1,4 +1,4 @@
-#include "Session.h"
+#include "WSSession.h"
 #include <boost/log/trivial.hpp>
 #include <msgpack.hpp>
 
