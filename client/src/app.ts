@@ -1,5 +1,5 @@
 import { Canvas } from './Canvas';
-import { Client, Kind, Message } from './Client';
+import { Client, Kind, BeginSessionRequest } from './Client';
 
 console.log('Hello!');
 
@@ -42,4 +42,7 @@ function stupidGameLoop() {
 // Run the stupid game loop every 100ms
 setInterval(stupidGameLoop, 100);
 let client = new Client();
-client.Send(new Message(1, Kind.BeginSessionRequest));
+
+client.Connect("ws://localhost:9876").then(() => {
+    client.Send(new BeginSessionRequest("Hello from the browser!"));
+})
