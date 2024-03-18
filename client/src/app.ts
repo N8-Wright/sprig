@@ -1,6 +1,7 @@
 import { Canvas } from './Canvas';
+import { Client, Kind, Message } from './Client';
 
-console.log('Loaded!');
+console.log('Hello!');
 
 const C = new Canvas(document.body, 600, 400);
 
@@ -40,3 +41,5 @@ function stupidGameLoop() {
 
 // Run the stupid game loop every 100ms
 setInterval(stupidGameLoop, 100);
+let client = new Client();
+client.Send(new Message(1, Kind.BeginSessionRequest));
